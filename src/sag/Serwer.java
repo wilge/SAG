@@ -9,9 +9,9 @@ public class Serwer extends Agent{
 
 	public void setup() 
 	{
-		//otworz plik
 		
-		//wczytaj kolejne linie do tablicy			
+		//TODO wczytywanie z pliku, parsowanie, zapis do tablicy
+		
 		
 		addBehaviour(new Behaviour()
 		{
