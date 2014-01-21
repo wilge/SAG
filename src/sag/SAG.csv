@@ -6,8 +6,8 @@ ID_karty;PIN;Ostatnia_transakcja_kwota;Nieudane_autoryzacje;Saldo;Wlasciciel
 1004;"0005";;0;5000;E
 1005;"0006";;0;6000;F
 1006;"0007";;0;7000;G
-1007;"0008";;0;8000;H
-1008;"0009";;0;9000;I
+1007;"0008";la;0;8000;H
+1008;"0009"; ;0;9000;I
 1009;"0010";;0;10000;J
 1010;"0011";;0;11000;K
 1011;"0012";;0;12000;L
@@ -20,3 +20,5 @@ ID_karty;PIN;Ostatnia_transakcja_kwota;Nieudane_autoryzacje;Saldo;Wlasciciel
 1018;"0019";;0;19000;T
 1019;"0020";;0;20000;U
 1020;"0021";;0;21000;W
+;;;;;
+abd;basd;ads
