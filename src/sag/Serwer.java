@@ -6,7 +6,8 @@ import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.BufferedWriter;
-
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -18,6 +19,7 @@ public class Serwer extends Agent
 	int Kwota;
 	int Poprzednia_kwota;
 	String PIN;
+	String path = ("C:/Users/luky/Desktop/");
 
 	// "ID_karty";"PIN";"Ostatnia_transakcja_kwota";"Nieudane_autoryzacje";"Licznik_bezgotówkowych";"Saldo";"Wlasciciel"
 	String tID, tPIN, tWLASCICIEL;
@@ -28,6 +30,18 @@ public class Serwer extends Agent
 	{
 		return (id + ";" + pin + ";" + ost + ";" + nie + ";" + bez + ";" + sal
 				+ ";" + wla);
+	}
+	
+	void FileWritter (ArrayList<ArrayList<String>> tab) throws FileNotFoundException
+	{		
+		PrintWriter zapis = new PrintWriter(path+"baza.csv");		  
+		for (int i=0; i<tab.size();i++)
+		{
+			for (int j=0; j<tab.get(i).size(); j++)
+				zapis.print(tab.get(i).get(j)+";");
+			zapis.println();
+		}
+		zapis.close();
 	}
 
 	// void czytaj_wiadomosc(String content)
@@ -84,7 +98,6 @@ public class Serwer extends Agent
 			}
 		} catch (Exception e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -92,26 +105,25 @@ public class Serwer extends Agent
 	public void setup()
 	{
 		// otworz plik
-
-		String path = ("C:/Users/luky/Desktop/sag.csv");
+//		String path = ("C:/Users/luky/Desktop/");
+		String we =	("sag.csv");
 
 		// wczytaj kolejne linie do tablicy
-		dataArray = FileLoader.loadFile(path);
+		dataArray = FileLoader.loadFile(path+we);
 
-		System.out.println("Rozmiar arraylisty: " + dataArray.size() + " x "
-				+ dataArray.get(0).size());
-
-		for (int nr = 1; nr < dataArray.size(); nr++)
-		{
-			System.out.println("Zdarzenie nr " + nr + ":");
-			for (int i = 0; i < dataArray.get(nr).size(); i++)
-				System.out.print(dataArray.get(nr).get(i) + "|");
-			System.out.println();
-		}
+		System.out.println("Baza wiedzy: Wczytano: " + (dataArray.size()-1) + " rekordów.");
 		System.out.println();
 
-		System.out.println("**********************");
-		System.out.println(dataArray.get(18).toString());
+		//wypisywanie zawartosci dataArray
+//		for (int nr = 1; nr < dataArray.size(); nr++)
+//		{
+//			System.out.println("Zdarzenie nr " + nr + ":");
+//			for (int i = 0; i < dataArray.get(nr).size(); i++)
+//				System.out.print(dataArray.get(nr).get(i) + "|");
+//			System.out.println();
+//		}
+		System.out.println();
+
 		// ID_karty|PIN|Ostatnia_transakcja_kwota|Nieudane_autoryzacje|Saldo|Wlasciciel|
 
 		addBehaviour(new Behaviour()
@@ -140,16 +152,16 @@ public class Serwer extends Agent
 					// wiadomosci typu: "Id_karty;kwota;Poprzednia_kwota;PIN"
 					parsuj(msg_rec.getContent());
 
-					System.out.println("Odebrano wiadomoœæ od: "
-							+ msg_rec.getSender());
+//					System.out.println("Odebrano wiadomoœæ od: "
+//							+ msg_rec.getSender());
 
 					int rekord = 0;
 					for (int i = 1; i < dataArray.size(); i++)
 						if (dataArray.get(i).contains(IDkarty))
 						{
 							rekord = i;
-							System.out.println("Zdarzenie o polu Id: "
-									+ IDkarty + " ma numer: " + rekord);
+//							System.out.println("Zdarzenie o polu Id: "
+//									+ IDkarty + " ma numer: " + rekord);
 						}
 
 					if (rekord == 0)
@@ -200,16 +212,17 @@ public class Serwer extends Agent
 												.println("Poprzednia transakcja ró¿na, wykryto próbê oszustwa!");
 									else
 									{
-										// agree() , zeruj licznik, odejmij
-										// saldo
+										// agree() , zeruj licznik
 										settNIEAUTORYZOWANE(0);
 										// odejmij saldo
 										settSALDO(gettSALDO() - getKwota());
+										//ostatnia transakcja
+										settOSTATNIA(getKwota());
 
 										System.out
 												.println("Wyplacono pieniadze.");
 
-										// wyslij alcm do bankomatu
+										// wyslij aclm do bankomatu
 										System.out.println("Wiadomosc:");
 										String odpowiedz=(tworz_wiadomosc(
 												gettID(), gettPIN(),
@@ -219,15 +232,35 @@ public class Serwer extends Agent
 												gettSALDO(), gettWLASCICIEL()));
 										System.out.println(odpowiedz);
 										
+										
+										
 										ACLMessage reply = new ACLMessage(1);
-										reply.setContent(odpowiedz); // TODO zmienic content - odpowiedz czy wyplacano
+										reply.setContent(odpowiedz); // TODO content == wiadomosc dla odbiorcy
 										reply.addReceiver(msg_rec.getSender());  
 										send(reply);
-
+										
 									}
 
 								}
 							}
+						
+
+							dataArray.get(rekord).set(0, gettID());
+							dataArray.get(rekord).set(1, gettPIN());
+							dataArray.get(rekord).set(2, Integer.toString(gettOSTATNIA()));
+							dataArray.get(rekord).set(3, Integer.toString(gettNIEAUTORYZOWANE()));
+							dataArray.get(rekord).set(4, Integer.toString(gettBEZGOTOWKOWE()));
+							dataArray.get(rekord).set(5, Integer.toString(gettSALDO()));
+							dataArray.get(rekord).set(6, gettWLASCICIEL());
+							try
+							{
+								FileWritter(dataArray);
+							} catch (FileNotFoundException e)
+							{
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
 						}
 					}
 				}
