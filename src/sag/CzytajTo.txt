@@ -1,0 +1,16 @@
+wywo³anie run configurations
+z argumentami:
+
+-gui -agents Serwer:sag.Serwer;Bank1:sag.Bankomat;Bank2:sag.Bankomat;Bank3:sag.Bankomat;Bank4:sag.Bankomat;Bank5:sag.Bankomat;Bank6:sag.Bankomat;Bank7:sag.Bankomat;Bank8:sag.Bankomat;Bank9:sag.Bankomat;Bank10:sag.Bankomat;Test:sag.Tester
+
+Do bankomatu powinnoœmy kierowaæ zapytania o typie REQUEST, oraz wymagane s¹ 4 pierwsze parametry
+//format wiadomoœci aclm
+id | pin | kwota | ost_kwota | czas | zgodnosc
+1011;0012;100;0;12400;true
+
+//format pliku z danymi
+ID_karty | PIN | Ostatnia_kwota	| Nieudane_autoryzacje | Licznik_bezgotówkowych	| Saldo	| Wlasciciel
+
+Bankomat - interakcja z uzytkownikiem, u niego wyplacamy pieniadze
+Serwer - weryfikuje wprowadzane dane, uaktualnia plik danych
+Tester - mozemy jako argument wywolac ile zdarzen ma zainicjowac

@@ -3,13 +3,15 @@ package sag;
 //import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
 
 public class Serwer extends Agent
 {
@@ -19,7 +21,12 @@ public class Serwer extends Agent
 	int Kwota;
 	int Poprzednia_kwota;
 	String PIN;
+	Long Czas;
 	String path = ("C:/Users/luky/Desktop/");
+	String we =	("sag.csv"), wy = "baza.csv";	
+	String wiadomosc;
+	
+	int l_otrz=0,l_poprawnych=0,l_blednych=0;
 
 	// "ID_karty";"PIN";"Ostatnia_transakcja_kwota";"Nieudane_autoryzacje";"Licznik_bezgotówkowych";"Saldo";"Wlasciciel"
 	String tID, tPIN, tWLASCICIEL;
@@ -34,7 +41,7 @@ public class Serwer extends Agent
 	
 	void FileWritter (ArrayList<ArrayList<String>> tab) throws FileNotFoundException
 	{		
-		PrintWriter zapis = new PrintWriter(path+"baza.csv");		  
+		PrintWriter zapis = new PrintWriter(path+wy);		  
 		for (int i=0; i<tab.size();i++)
 		{
 			for (int j=0; j<tab.get(i).size(); j++)
@@ -44,18 +51,6 @@ public class Serwer extends Agent
 		zapis.close();
 	}
 
-	// void czytaj_wiadomosc(String content)
-	// {
-	// try{
-	// if (content.isEmpty())
-	// {
-	// System.out.println("Brak treœci wiadomoœci!");
-	// }
-	// else {
-	// {
-	// StringTokenizer st = new StringTokenizer(content, ";");
-	// }
-	// }
 
 	protected void parsuj(String content)
 	{
@@ -70,28 +65,23 @@ public class Serwer extends Agent
 				{
 					StringTokenizer st = new StringTokenizer(content, ";");
 					// System.out.println("Liczba tokenow: "+st.countTokens());
-					switch (st.countTokens())
-					{
-					case 2:
-						setIDkarty(st.nextToken());
-						setPoprzednia_kwota(Integer.parseInt(st.nextToken()));
-						break;
-					case 3:
-						setIDkarty(st.nextToken());
-						setPoprzednia_kwota(Integer.parseInt(st.nextToken()));
-						String odpowiedz = st.nextToken();
-						// if (odpowiedz.equals("TAK"))
-						// setOdpowiedzTak(getOdpowiedzTak()+1);
-						// else if (odpowiedz.equals("NIE"));
-						// else System.out.println("B³êdna odpowiedz");
-						break;
-					case 4:
-						setIDkarty(st.nextToken());
-						setKwota(Integer.parseInt(st.nextToken()));
-						setPoprzednia_kwota(Integer.parseInt(st.nextToken()));
-						setPIN(st.nextToken());
-						break;
-					default:
+					
+					System.out.println(content);
+					
+//"ID_karty";"PIN";"Ostatnia_transakcja_kwota";"Nieudane_autoryzacje";"Licznik_bezgotówkowych";"Saldo";"Wlasciciel";
+//id pin kwota ost_kwota czas		
+			
+					int tokens = st.countTokens();
+					if (tokens>0)	{	setIDkarty(st.nextToken());
+						if  (tokens>1) {	setPIN(st.nextToken());
+						if  (tokens>2) {	setKwota(Integer.parseInt(st.nextToken()));
+						if  (tokens>3) {	setPoprzednia_kwota(Integer.parseInt(st.nextToken()));
+						if  (tokens>4) {	setCzas(Long.parseLong(st.nextToken()));						
+						}
+						}
+						}
+						}
+					else
 						System.out.println("B³êna treœæ wiadomoœci!");
 					}
 				}
@@ -102,11 +92,13 @@ public class Serwer extends Agent
 		}
 	}
 
+	@SuppressWarnings("serial")
 	public void setup()
 	{
+		wy=we;
 		// otworz plik
 //		String path = ("C:/Users/luky/Desktop/");
-		String we =	("sag.csv");
+
 
 		// wczytaj kolejne linie do tablicy
 		dataArray = FileLoader.loadFile(path+we);
@@ -114,7 +106,8 @@ public class Serwer extends Agent
 		System.out.println("Baza wiedzy: Wczytano: " + (dataArray.size()-1) + " rekordów.");
 		System.out.println();
 
-		//wypisywanie zawartosci dataArray
+
+//		wypisywanie zawartosci dataArray
 //		for (int nr = 1; nr < dataArray.size(); nr++)
 //		{
 //			System.out.println("Zdarzenie nr " + nr + ":");
@@ -122,7 +115,7 @@ public class Serwer extends Agent
 //				System.out.print(dataArray.get(nr).get(i) + "|");
 //			System.out.println();
 //		}
-		System.out.println();
+//		System.out.println();
 
 		// ID_karty|PIN|Ostatnia_transakcja_kwota|Nieudane_autoryzacje|Saldo|Wlasciciel|
 
@@ -135,20 +128,19 @@ public class Serwer extends Agent
 				// otrzymujemy aclm
 				// wiadomosci typu: "Id_karty;Kwota;Poprzednia_kwota;PIN" //args
 				// 4
-				// 1008;100;0;"0009"
+				// 1008;100;0;0009
 				// sprawdzamy czy content wiadomosci zgadza sie z ponizszymi
 				// wartosciami
-
 				// agree() , zeruj licznik, odejmij saldo
 				// reject(), inkrementuj licznik nieautoryzowanych
-
-				// TODO Auto-generated method stub
+			
 				MessageTemplate mt;
 				mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
 				ACLMessage msg_rec = receive(mt);
 				if (msg_rec != null
 						&& msg_rec.getPerformative() == ACLMessage.REQUEST)
 				{
+					l_otrz++;
 					// wiadomosci typu: "Id_karty;kwota;Poprzednia_kwota;PIN"
 					parsuj(msg_rec.getContent());
 
@@ -164,8 +156,9 @@ public class Serwer extends Agent
 //									+ IDkarty + " ma numer: " + rekord);
 						}
 
+					ACLMessage reply = new ACLMessage(ACLMessage.DISCONFIRM);
 					if (rekord == 0)
-						System.out.println("Nie znaleziono podanego IDkarty!");
+						setWiadomosc("Nie znaleziono podanego ID karty!");
 					else
 					{
 						// tID, tPIN, tOSTATNIA, tNIEAUTORYZOWANE,
@@ -182,68 +175,71 @@ public class Serwer extends Agent
 								.parseInt(dataArray.get(rekord).get(5)));
 						settWLASCICIEL(dataArray.get(rekord).get(6));
 
+
 						// if licznik<3
 						if (tNIEAUTORYZOWANE > 2)
+						{
 							System.out.println("Konto zablokowane!");
+							setWiadomosc("Karta o ID = "+gettID()+" zosta³a zablokowana. Trzykrotnie wpisano b³êdny kod PIN.");
+							l_blednych++;
+						}
 						else
 						{
-							if (Kwota < 50)
+							if (Kwota < 50 && gettBEZGOTOWKOWE()<10)
+								{
 								settBEZGOTOWKOWE(gettBEZGOTOWKOWE() + 1);
-							// if pin=pin_wzor
-							else if (!PIN.equals(dataArray.get(rekord).get(1)))
-							{
-								System.out.println("B³êdny kod PIN!");
+								setWiadomosc("Transakcja poni¿ej 50 z³.");
+								l_poprawnych++;
+								}
+//							else if (gettBEZGOTOWKOWE() > 9 && gettPIN().equals(null))
+//								setWiadomosc("Nale¿y autoryzowaæ siê za pomoc¹ kodu PIN, spróboj ponownie.");
+							// if pin!=pin_wzor
+							else if (!gettPIN().equals((dataArray.get(rekord).get(1))))
+							{							
 								settNIEAUTORYZOWANE(gettNIEAUTORYZOWANE() + 1);
-								System.out.println("Pozosta³o "
-										+ (3 - gettNIEAUTORYZOWANE())
-										+ " prob.");
-							} else
-							{
-								settBEZGOTOWKOWE(0);
-								// if kwota<saldo
-								if (Kwota > tSALDO)
+								setWiadomosc("B³êdny kod PIN! Pozosta³o "+(3 - gettNIEAUTORYZOWANE())+" prob.");
+								l_blednych++;
+							} else if (getPoprzednia_kwota() != gettOSTATNIA())
 								{
-									System.out.println("Brak srodków!");
-								} else
+									setWiadomosc("Poprzednia transakcja b³êdna, wykryto próbê oszustwa!");
+									l_blednych++;
+								}
+								else if (Kwota > tSALDO)
 								{
-									// if ost_transakcja sie zgadza
-									if (getPoprzednia_kwota() != gettOSTATNIA())
-										System.out
-												.println("Poprzednia transakcja ró¿na, wykryto próbê oszustwa!");
-									else
+									// if kwota<saldo
+									settBEZGOTOWKOWE(0);
+									settNIEAUTORYZOWANE(0);
+									setWiadomosc("Brak œrodków na koncie.");
+									l_blednych++;
+								} 
+	
+									else  // if ost_transakcja sie zgadza		
 									{
-										// agree() , zeruj licznik
-										settNIEAUTORYZOWANE(0);
+										// agree() 
+										reply.setPerformative(ACLMessage.AGREE);
 										// odejmij saldo
 										settSALDO(gettSALDO() - getKwota());
 										//ostatnia transakcja
 										settOSTATNIA(getKwota());
+										settBEZGOTOWKOWE(0);
+										settNIEAUTORYZOWANE(0);
 
-										System.out
-												.println("Wyplacono pieniadze.");
-
-										// wyslij aclm do bankomatu
-										System.out.println("Wiadomosc:");
-										String odpowiedz=(tworz_wiadomosc(
-												gettID(), gettPIN(),
-												gettOSTATNIA(),
-												gettNIEAUTORYZOWANE(),
-												gettBEZGOTOWKOWE(),
-												gettSALDO(), gettWLASCICIEL()));
-										System.out.println(odpowiedz);
+										System.out.println("Wyplacono pieniadze.");
+										l_poprawnych++;
+										setWiadomosc("Wyp³acono "+getKwota()+"z³. Saldo rachunku: "+gettSALDO());
 										
 										
 										
-										ACLMessage reply = new ACLMessage(1);
-										reply.setContent(odpowiedz); // TODO content == wiadomosc dla odbiorcy
-										reply.addReceiver(msg_rec.getSender());  
-										send(reply);
-										
+			
 									}
 
 								}
 							}
 						
+					reply.setContent(getWiadomosc());
+					reply.addReceiver(msg_rec.getSender());  
+					send(reply);
+
 
 							dataArray.get(rekord).set(0, gettID());
 							dataArray.get(rekord).set(1, gettPIN());
@@ -257,20 +253,30 @@ public class Serwer extends Agent
 								FileWritter(dataArray);
 							} catch (FileNotFoundException e)
 							{
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-
-						}
-					}
+						}				
 				}
-			}
+	
 
 			@Override
 			public boolean done()
 			{
-				// TODO Auto-generated method stub
 				return false;
+			}
+		});
+		
+		addBehaviour(new TickerBehaviour(null, 60000)
+		{
+			
+			@Override
+			protected void onTick()
+			{
+			System.out.println();
+			System.out.println("---------------SERWER-------------------");
+			System.out.println("Wszystkie\tPoprawne\tBledy");
+			System.out.println("   "+l_otrz+"\t\t  "+l_poprawnych+"\t          "+l_blednych);
+			System.out.println();				
 			}
 		});
 	}
@@ -384,5 +390,26 @@ public class Serwer extends Agent
 	{
 		this.tWLASCICIEL = tWLASCICIEL;
 	}
+
+	public Long getCzas()
+	{
+		return Czas;
+	}
+
+	public void setCzas(Long time)
+	{
+		Czas = time;
+	}
+
+	public void setWiadomosc(String wiadomosc)
+	{
+		this.wiadomosc = wiadomosc;
+	}
+
+	public String getWiadomosc()
+	{
+		return wiadomosc;
+	}
+	
 
 }

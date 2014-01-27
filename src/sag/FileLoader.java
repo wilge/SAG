@@ -90,7 +90,7 @@ public class FileLoader {
 		ArrayList<String> tokens = new ArrayList<>();
 		
 		while(st.hasMoreTokens()){
-			tokens.add(st.nextToken());
+			tokens.add(st.nextToken().replaceAll("\"", ""));
 		}
 		
 		return tokens;
