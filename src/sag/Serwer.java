@@ -229,7 +229,7 @@ public class Serwer extends Agent
 //							else if (gettBEZGOTOWKOWE() > 9 && gettPIN().equals(null))
 //								setWiadomosc("Nale¿y autoryzowaæ siê za pomoc¹ kodu PIN, spróboj ponownie.");
 							// if pin!=pin_wzor
-							else if (!gettPIN().equals((dataArray.get(rekord).get(1))))
+							else if (!getPIN().equals((gettPIN())))
 							{							
 								settNIEAUTORYZOWANE(gettNIEAUTORYZOWANE() + 1);
 								setWiadomosc("B³êdny kod PIN! Pozosta³o "+(3 - gettNIEAUTORYZOWANE())+" prob.");
@@ -354,13 +354,13 @@ public class Serwer extends Agent
 								setWiadomosc(getWiadomosc()+" Wyp³acono "+gettSALDO()+" zl.");								
 								t_poprawnych++;
 								}
-							else if (gettBEZGOTOWKOWE() > 9 && gettPIN().equals(" "))
+							else if (gettBEZGOTOWKOWE() > 9 && getPIN().equals(" "))
 							{
 								setWiadomosc("Nale¿y autoryzowaæ siê za pomoc¹ kodu PIN, spróboj ponownie.");
 								t_blednych++;
 							}
 							// if pin!=pin_wzor
-							else if (!gettPIN().equals((dataArray.get(rekord).get(1))))
+							else if (!getPIN().equals((dataArray.get(rekord).get(1))))
 							{							
 								settNIEAUTORYZOWANE(gettNIEAUTORYZOWANE() + 1);
 								setWiadomosc("B³êdny kod PIN! Pozosta³o "+(3 - gettNIEAUTORYZOWANE())+" prob.");
