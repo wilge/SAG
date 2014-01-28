@@ -1,7 +1,7 @@
 wywo³anie run configurations
 z argumentami:
 
--gui -agents Serwer:sag.Serwer;Bank1:sag.Bankomat;Bank2:sag.Bankomat;Bank3:sag.Bankomat;Bank4:sag.Bankomat;Bank5:sag.Bankomat;Bank6:sag.Bankomat;Bank7:sag.Bankomat;Bank8:sag.Bankomat;Bank9:sag.Bankomat;Bank10:sag.Bankomat;Test:sag.Tester
+-gui -agents Serwer:sag.Serwer;Bank1:sag.Bankomat;Bank2:sag.Bankomat;Bank3:sag.Bankomat;Bank4:sag.Bankomat;Bank5:sag.Bankomat;Bank6:sag.Bankomat;Bank7:sag.Bankomat;Bank8:sag.Bankomat;Bank9:sag.Bankomat;Bank10:sag.Bankomat;Test:sag.Tester;Term1:sag.Terminal;Term2:sag.Terminal;Term3:sag.Terminal;Term4:sag.Terminal;Term5:sag.Terminal
 
 Do bankomatu powinnoœmy kierowaæ zapytania o typie REQUEST, oraz wymagane s¹ 4 pierwsze parametry
 //format wiadomoœci aclm
