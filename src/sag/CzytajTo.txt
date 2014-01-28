@@ -11,6 +11,15 @@ id | pin | kwota | ost_kwota | czas | zgodnosc
 //format pliku z danymi
 ID_karty | PIN | Ostatnia_kwota	| Nieudane_autoryzacje | Licznik_bezgotówkowych	| Saldo	| Wlasciciel
 
+//id pin kwota wlasciciel cvc2 data_waznosci
+//1005;0006;100;W;242;2015-02-03
+
 Bankomat - interakcja z uzytkownikiem, u niego wyplacamy pieniadze
 Serwer - weryfikuje wprowadzane dane, uaktualnia plik danych
 Tester - mozemy jako argument wywolac ile zdarzen ma zainicjowac
+
+tester tworzy automatyczne zapytania
+//liczba t/b
+50,t
+
+

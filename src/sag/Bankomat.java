@@ -23,7 +23,7 @@ public class Bankomat extends Agent
 
 	AID Serwer = new AID("Serwer", AID.ISLOCALNAME);
 	String ostatniKlient; // ID karty
-	int ostatniaKwota; // poprzednia kwota
+	double ostatniaKwota; // poprzednia kwota
 	long Czas = (long) 0; // czas transakcji
 	
 	Integer iloscBankomatow = 99;
@@ -33,8 +33,8 @@ public class Bankomat extends Agent
 	Integer autoryzacja = 0;
 	
 	String IDkarty;
-	int Kwota;
-	int Poprzednia_kwota;
+	double Kwota;
+	double Poprzednia_kwota;
 	String PIN;
 	Boolean zgodnosc = false;
 	
@@ -59,7 +59,7 @@ public class Bankomat extends Agent
                                      {
                                      case 2:
                                              setIDkarty(st.nextToken());
-                                             setPoprzednia_kwota(Integer.parseInt(st.nextToken()));
+                                             setPoprzednia_kwota(Double.parseDouble(st.nextToken()));
                                              break;
                                      case 3:
                                             setIDkarty(st.nextToken());
@@ -71,8 +71,8 @@ public class Bankomat extends Agent
                                      case 6:
                                     	 setIDkarty(st.nextToken());
              							 setPIN(st.nextToken());
-            						     setKwota(Integer.parseInt(st.nextToken()));
-            							 setPoprzednia_kwota(Integer.parseInt(st.nextToken()));
+            						     setKwota(Double.parseDouble(st.nextToken()));
+            							 setPoprzednia_kwota(Double.parseDouble(st.nextToken()));
             						 	 if (tokens>4) setCzas(Long.parseLong(st.nextToken()));
             							 if (tokens>5) setZgodnosc(Boolean.parseBoolean(st.nextToken()));
                                              break;
@@ -360,6 +360,7 @@ public class Bankomat extends Agent
 							
 							setWiadomosc(getIDkarty()+";"+getPIN()+";"+getKwota()+";"+getPoprzednia_kwota());
 							confirm.setContent(wiadomosc);
+							confirm.setOntology("Bankomat");
 							confirm.addReceiver(Serwer);
 							send(confirm);
 //							System.out.println("Wykonano.");
@@ -443,12 +444,12 @@ public class Bankomat extends Agent
 		this.ostatniKlient = ostatniKlient;
 	}
 
-	public int getOstatniaKwota()
+	public double getOstatniaKwota()
 	{
 		return ostatniaKwota;
 	}
 
-	public void setOstatniaKwota(int i)
+	public void setOstatniaKwota(double i)
 	{
 		this.ostatniaKwota = i;
 	}
@@ -483,22 +484,22 @@ public class Bankomat extends Agent
 		this.wiadomosc = wiadomosc;
 	}
 
-	public int getKwota()
+	public double getKwota()
 	{
 		return Kwota;
 	}
 
-	public void setKwota(int kwota)
+	public void setKwota(double kwota)
 	{
 		Kwota = kwota;
 	}
 
-	public int getPoprzednia_kwota()
+	public double getPoprzednia_kwota()
 	{
 		return Poprzednia_kwota;
 	}
 
-	public void setPoprzednia_kwota(int poprzednia_kwota)
+	public void setPoprzednia_kwota(double poprzednia_kwota)
 	{
 		Poprzednia_kwota = poprzednia_kwota;
 	}
